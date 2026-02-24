@@ -1,6 +1,6 @@
 ---
 title: "Lake Ice Phenology: Part 1"
-author: 'Deonna Edmonds5'
+author: 'Deonna Edmonds'
 format:
   html:
     embed-resources: true
@@ -119,7 +119,7 @@ First, it is important to understand how much variation is explained by the mode
 
 What is the R2 for the regression? Based on the R2, is `year` and `ice_off_doy` strongly related?
 
-**Answer 4:**
+**Answer 4: The R2 is 0.2055 is a low R2, meaning that only 20.55% explains the variation in ice off doy. So no, they are not strongly related.**
 
 ## Residuals normally distributed
 
@@ -139,9 +139,13 @@ We will use a histogram to visually assess whether this requirement is met. Firs
 You will use a histogram to examine the residuals. First, the code uses the coefficients to predict the yearly ice-off DOY. Second, calculate the residuals by subtracting the predicted ice-off DOY from the observed DOY.
 
 ```{r}
-sunapee <- sunapee %>% 
+sunapee <- sunapee |>
+  mutate(ice_off_doy = as.numeric(ice_off_doy))
+
+sunapee <- sunapee |> 
   mutate(predicted = fit$coefficients[1] + year * fit$coefficients[2], 
          residual = ice_off_doy - predicted) #Observed - Predicted
+class(sunapee$ice_off_doy)
 ```
 
 **Question 5:**
@@ -151,6 +155,10 @@ Use the [`add_predictions()`](https://modelr.tidyverse.org/reference/add_predict
 **Answer 5:**
 
 ```{r}
+library(modelr)
+sunapee <- sunapee |> 
+  add_predictions(fit) |>
+  add_residuals(fit)
 
 ```
 
@@ -160,10 +168,11 @@ Now, to visualize the residuals, use `geom_histogram()` to plot them as a histog
 
 Show Histogram and answer the following question: do the residuals meet the assumptions of the linear regression? (are the residuals normally distributed with the distribution centered around zero)?
 
-**Answer 6:**
+**Answer 6:The residuals are not normally distributed. The residuals are skewed left, so they do not meet the assumptions of the linear regression.**
 
 ```{r}
-
+?hist
+hist(sunapee$resid)
 ```
 
 
@@ -175,7 +184,7 @@ A slope could appear to be higher or lower than zero, but the uncertainty in the
 
 Based on the `summary()` above, what is the p-value for the slope?
 
-**Answer 7:**
+**Answer 7: 2.504e-09**
 
 ## The slope physically meaningful
 
@@ -185,7 +194,7 @@ A slope value could have a low probability of being 0 (thus we have a strong bel
 
 Based on the slope value, how many more years are needed to pass before the lake has a 1 week change in ice off doy? Do you think this is meaningful? Why?
 
-**Answer 8:**
+**Answer 8: It would take about 66 years (7days/0.10602d ays a year). It is meaningful because while 0.1 day per year seems like a small change, over a vast amount of time like a decade, the results are means ecological shifts in seasonal timing**
 
 ## Overall model assessment
 
